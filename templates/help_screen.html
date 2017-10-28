@@ -1,94 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>UMW Honors Program Evaluation</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <style>
-    /* Remove the navbar's default margin-bottom and rounded borders */ 
-    .navbar {
-      margin-bottom: 0;
-      border-radius: 0;
-    }
-    
-    /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
-    .row.content {height: 450px}
-    
-    /* Set gray background color and 100% height */
-    .sidenav {
-      padding-top: 20px;
-      background-color: #aeb0b5;
-      height: 150%;
-      padding: 30px;
-    }
-    
-    /* Set black background color, white text and some padding */
-    footer {
-      background-color: #555;
-      color: white;
-      height: 5%;
-      padding: 30px;
-    }
-    
-    /* On small screens, set height to 'auto' for sidenav and grid */
-    @media screen and (max-width: 767px) {
-      .sidenav {
-        height: auto;
-        padding: 15px;
-      }
-      .row.content {height:auto;} 
-    }
-  </style>
-</head>
-<body>
 
-<nav class="navbar navbar-inverse" style="background-color:#00305e">
-  <div class="container-fluid">
-    <div class="navbar-header" >
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>                        
-      </button>
-      <a class="navbar-brand" href="#">Logo</a>
-    </div>
-    <div class="collapse navbar-collapse" id="myNavbar">
-      <ul class="nav navbar-nav">
-        <li><a href="/home">Home</a></li>
-        <li><a href="/about">About</a></li>
-        <li><a href="/home">View Checklist</a></li>
-        <li><a href = "/upload">Upload Checklist (administrator only)</a></li>
-        <li><a href="/changepasswordform">Password Change</a></li>
-        <li class = "active"><a href="/help">Help</a></li>
-      </ul>
-      <!--- Log out functionality.  Make sure this is the same on every page (Except error.html and login.html.  
-      Styling could be edited to be nicer if anyone knows how, but currently it is functional as is --->
-      
-      <form id = "logout" method = "post" action = "/logout">
-      <ul class="nav navbar-nav navbar-right">
-        
-        <div class="wrapper">
-          <li><span class="glyphicon glyphicon-log-in" style="background-color:#c6c6cb"></span>
-            <input type="submit" value = "Log Out" class = "btn" style="background-color:#c6c6cb"></li>
-        </div>
-      </ul>
-      </form>
-      <!--- End log out --->
-    </div>
-  </div>
-</nav>
-  
-<div class="container-fluid text-center" style="background-color: #fff">    
-  <div class="row content">
-    <div class="col-sm-2 sidenav" style="background-color: #c6c6cb">
-      <p><a href="#">Annoucement 1</a></p>
-      <p><a href="#">Annoucement 2</a></p>
-      <p><a href="#">Annoucement 3</a></p>
-    </div>
+    {% extends "layout.html" %}
     
+    {% block content %}
     <!-- Change this section of text per page -->    
     <div class="col-sm-8 text-left" style="background-color: #fff"> 
       <h1>Frequently Asked Questions</h1>
@@ -106,18 +19,4 @@
       <h5><b>Example of a Question 6?</b></h5>
       <p>Enter Answer Here.</p>
     </div>
-
-    <div class="col-sm-2 sidenav" style="background-color: #c6c6cb; border-color: #c6c6cb">
-      <div class="well" style="background-color: #c6c6cb">
-        <p>Filler space.  Maybe a UMW Twitter feed or something.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<footer class="container-fluid text-center" style="background-color: #00305e">
-  <p> Daniel Adams, Aaron Dyke, Adam Hurnyak, Andrew Woodruff © 2017.  All Rights Reserved.</p>
-</footer>
-
-</body>
-</html>
+    {% endblock %}

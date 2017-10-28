@@ -13,6 +13,7 @@ def connectToPSQLDB():
 	    print(type(e))
 	    print(e)
 	    print("Can't connect to database")
+	    print("Try running 'sudo service postgresql start' in the terminal")
 	    return None
 		
 
@@ -77,9 +78,79 @@ def change_password(newpassword, username):
 	conn = connectToPSQLDB()
 	if conn == None:
 		return None
-		
 	query_string = "update users set password = crypt(%s, gen_salt('bf')) where username = %s"
 	queryDB(query_string, conn, select = False, args = (newpassword, username))
 	print(query_string)
+	conn.close()
+	return 0
+#Incomplete	
+def upload_csv(filename):
+	
+	conn = connectToPSQLDB()
+	if conn == None:
+		return None
+		
+	query_string = "\copy checklist(firstname, lastname, email, dob, gpa, age) from %s delimiter ',' CSV HEADER"
+	
+	queryDB(query_string, conn, select = False, args = (filename))
+	print(query_String)
+	conn.close()
+	return 0
+	
+def get_five_announcements():
+	
+	conn = connectToPSQLDB()
+	if conn == None:
+		return None
+		
+	query_string = "select to_char(date, 'Mon DD, YYYY') as date, to_char(time, 'HH12:MI') as time, title, message from announcements order by date, time desc limit 5"
+	
+	results = queryDB(query_string, conn, select = True, args =())
+	#print(query_string)
+	conn.close()
+	#print(results)
+	return results
+	
+def get_announcements():
+	
+	conn = connectToPSQLDB()
+	if conn == None:
+		return None
+		
+	query_string = "select to_char(date, 'Mon DD, YYYY') as date, to_char(time, 'HH12:MI') as time, title, message from announcements order by date, time desc"
+	
+	results = queryDB(query_string, conn, select = True, args =())
+	#print(query_string)
+	conn.close()
+	print(results)
+	return results
+	
+def post_announcement(now, title, announcement):
+	
+	conn = connectToPSQLDB()
+	if conn == None:
+		return None
+	
+	query_string= "insert into announcements (date, time, title, message) values (%s, current_time, %s, %s)"
+	
+	results = queryDB(query_string, conn, select = False, args=(now, title, announcement))
+	print(query_string)
+	conn.close()
+	return results
+	
+def import_csv():
+
+	conn = connectToPSQLDB()
+	if conn == None:
+		return None
+		
+	#clear database before adding new stuff in	
+	query_string2 = "delete from checklist"	
+	queryDB(query_string2, conn, select = False, args=())
+	
+	
+	query_string = "copy checklist from '/home/ubuntu/workspace/CSVFiles/cleanedCSV.csv' (FORMAT CSV, DELIMITER ',', HEADER)"
+	queryDB(query_string, conn, select = False, args =())
+	
 	conn.close()
 	return 0

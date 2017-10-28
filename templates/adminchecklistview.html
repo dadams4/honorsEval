@@ -1,0 +1,13 @@
+    {% extends "layout.html" %}
+        {% block content %}
+        <div class="col-sm-8 text-left" style="background-color: #fff"> 
+      <h1>Checklist records for: %s</h1>
+        {% for item in announcements %}
+        <p><h3>{{item.title}}</h3></p>
+        <p><b>{{item.time}} on {{item.date}}</b></p>
+        <p>{{item.message}}</p>
+      <hr>
+        {% endfor %}
+    </div>
+        
+        {% endblock %}

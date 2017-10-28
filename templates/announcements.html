@@ -1,6 +1,17 @@
-<head>
-</head>
-<body>
-</body>
-<footer>
-</footer>
+    {% extends "layout.html" %}
+        {% block content %}
+        <div class="col-sm-8 text-left" style="background-color: #fff"> 
+      <h1>Enter an Announcement</h1>
+      <hr>
+        <form id ="contact-form" method="post" action="/announcement_posted">
+      <div class = "col-xs-3">
+        <input type = "text" name = "title" class = "form-control" placeholder = "Announcement Title" required/>
+        <br>
+        <textarea rows = "4" name = "announcement" type = "textarea" class = "form-control" placeholder = "Announcement text" required></textarea>
+        <br>
+        <input name = "postannouncement" value = "Post Announcement" type = "submit" style="background-color:#00305e; color:#fff;" class = "btn"/>
+      </div>
+      </form>
+    </div>
+        
+        {% endblock %}
