@@ -1,16 +1,22 @@
 import os
 import subprocess
+import uuid
+import smtplib
 import psycopg2
 import psycopg2.extras
-from flask import Flask, render_template, session, request, redirect, url_for
+from lib.config import *
+from flask import Flask, render_template, session, request, redirect, url_for, current_app
 from flask_uploads import UploadSet, configure_uploads
 from werkzeug.utils import secure_filename
+#from pdfjinja import PdfJinja
 
 UPLOAD_FOLDER = "/home/ubuntu/workspace/CSVFiles"
 ALLOWED_EXTENSIONS = set(['csv'])
 
 UPLOADS_DEFAULT_DEST = "/home/ubuntu/workspace/CSVFiles"
 files = UploadSet('files', ("csv"))
+
+#pdfjinja = PdfJinja('form.pdf', current_app.jinja_env)
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24).encode('hex')
@@ -22,9 +28,10 @@ configure_uploads(app, files)
 from lib.config import *
 from lib import postgresql_data as pg
 
-#Currently logged in user (one per session)
+#Global variables passed by the server to html pages
 logged = ''
 announcements = ''
+searched = ''
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -55,6 +62,42 @@ def replace_first_line(src_filename, target_filename, replacement_line):
     t.write(remainder)
             
     t.close()
+
+def send_email(recip, message):
+    
+    smtp_server = smtplib.SMTP('smtp.gmail.com', 587)
+    smtp_server.ehlo()
+    smtp_server.starttls()
+    smtp_server.login('danieladamsumw@gmail.com', APP_PASSWORD)
+    
+    smtp_server.sendmail('danieladamsumw@gmail.com', recip, message)
+    smtp_server.quit()
+    
+    print("Email sent to " + str(recip))
+    
+def new_user_email():
+    
+    #TODO: fix formatting of firstname and lastname in database to remove single quotes from data
+    
+    #This block creates new users and then emails them their login credentials
+            new_users = pg.find_new_users()
+            
+            for email in new_users:
+                
+                #Get the user info and add it to the database
+                fname = pg.get_all_new_firstnames(email)
+                lname = pg.get_all_new_lastnames(email)
+                rand_pass = str(uuid.uuid4())[0:8]
+                
+                fname = fname[2:-2]
+                lname = lname[2:-2]
+                               
+                pg.add_user(str(email)[2:-2], rand_pass, fname, lname)
+                        
+                #WARNING.  IF THE LINES BELOW THIS ARE UNCOMMENTED THEY WILL SEND EMAILS TO ALL STUDENTS IN THE CSV FILE UPON SUCCESSFUL UPLOAD.  MAKE SURE IT IS COMMENTED OUT WHEN TESTING CSV UPLOADING, OR USE A SEPARATE CSV FILE.
+                
+                #message_body = """Subject: Welcome to UMW Honors Degree Evaluation\nPlease navigate to website url. Your username is your full UMW email and your temporary password is """ +  rand_pass +  """. Please change your password once you log in for the first time.  Thank you!"""
+                #send_email(email, message_body)
 
 @app.route('/', methods = ['GET', 'POST'])
 def mainIndex():
@@ -152,9 +195,6 @@ def helpPage():
 @app.route('/upload', methods = ['GET', 'POST'])
 def uploadPage():
     
-    #TODO: Convert CSV file to SQL and update the database - some of this will need to be done in postgresql_data.py
-    
-    #TODO: Add error handling for when a user uploads a file that is not .CSV (reload page with an error alert)
     
     #Prevents page from being rendered unless it is being accessed through a valid session
     if request.method == 'GET':
@@ -196,21 +236,20 @@ def uploadPage():
             
             replace_first_line("/home/ubuntu/workspace/CSVFiles/" + filename, "/home/ubuntu/workspace/CSVFiles/cleanedCSV.csv", "LastName,FirstName,ID,email,Admitted,duPontCode,Status,Term,CoCur1,Date1,FSEMHN,FSEMDate,HNcourse1,HN1Date,HNcourse2,HN2Date,HNcourse3,HN3Date,HNcourse4,HN4Date,HNcourse5,HN5Date,ResearchCourse,ResearchDate,CapstoneCourse,CapstoneDate,HONR201,HONR201Date,Leadership,mentoring,HONRPortfolio4,HONRPortfolio1,HONRPortfolio2,HONRPortfolio3,ExitInterview")
             
-            #fix_endline("/home/ubuntu/workspace/CSVFiles/cleanedCSV.csv", "/home/ubuntu/workspace/CSVFiles/actuallycleanedCSV.csv")
-            
             subprocess.call(["sed", "-i", 's/\r//', '/home/ubuntu/workspace/CSVFiles/cleanedCSV.csv'])
-            #subprocess.call(["sed 's/\r//' /home/ubuntu/workspace/CSVFiles/cleanedCSV.csv /home/ubuntu/workspace/CSVFiles/actuallycleanedCSV.csv "], shell = True)
-            
-            pg.import_csv()
 
+            pg.import_csv()
+            
+            #Sends new users emails with account creation info
+            new_user_email()
+    
     announcement_result = pg.get_five_announcements()
             
     return render_template('upload.html', announcements = announcement_result)
 
+#This just uploads the file I think unless the above function actually does that
 @app.route('/uploadconfirm', methods = ['POST'])
 def confirmUploadPage():
-    
-    #Bad practice should validate input to ensure non-malicious files    
     
     print(request.form['file'])
     
@@ -235,10 +274,16 @@ def searchChecklist():
         
             return render_template("error.html")
             
-    student_to_search = request.form['name']
+    #TODO: Populate the html with this data 
+    
+    #name_to_search = request.form['fname']
+    
+    #lname_to_search = request.form['lname']
+    
     email_to_search = request.form['email']
+    
+    search_checklist(email_to_search)
             
-
 @app.route('/changepasswordform', methods = ['GET'])
 def updatePasswordFormPage():
     
@@ -320,7 +365,6 @@ def landingPage():
     else:
         user = ['','']
     
-    #for debugging purposes    
     print(session['userName'] + " Has logged in")
     
     result = pg.get_login(session['userName'], session['passWord'])

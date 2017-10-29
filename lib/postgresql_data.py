@@ -154,3 +154,70 @@ def import_csv():
 	
 	conn.close()
 	return 0
+	
+def search_checklist(email):
+	
+	conn = connectToPSQLDB()
+	if conn == None:
+		return None
+		
+	query_string = "select * from checklist where email = %s"
+	
+	results = queryDB(query_string, conn, select = True, args=(email))
+	
+	conn.close()
+	return results
+	
+def add_user(email, password, fname, lname):
+	
+	conn = connectToPSQLDB()
+	if conn == None:
+		return None
+		
+	query_string = "insert into users values (%s, crypt(%s, gen_salt('bf')), %s, %s)"
+	
+	queryDB(query_string, conn, select = False, args = (email, password, fname, lname))
+	
+	conn.close()
+	return 0
+	
+def find_new_users():
+	
+	conn = connectToPSQLDB()
+	if conn == None:
+		return None
+		
+	query_string = "select email from checklist except all select username from users"
+	
+	results = queryDB(query_string, conn, select = True, args = ())
+	print(results)
+	conn.close()
+	return results
+	
+def get_all_new_firstnames(email):
+	
+	conn = connectToPSQLDB()
+	if conn == None:
+		return None
+		
+	query_string = "select FirstName from checklist where email = %s"
+	
+	results = queryDB(query_string, conn, select = True, args = (email))
+	print(results)
+	results = str(results)
+	conn.close()
+	return results
+
+def get_all_new_lastnames(email):
+	
+	conn = connectToPSQLDB()
+	if conn == None:
+		return None
+		
+	query_string = "select LastName from checklist where email = %s"
+	
+	results = queryDB(query_string, conn, select = True, args = (email))
+	print(results)
+	results = str(results)
+	conn.close()
+	return results
