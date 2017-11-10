@@ -2,11 +2,25 @@
     {% extends "layout.html" %}
     {% block content %}
     <div class="col-sm-8 text-left" style="background-color: #fff"> 
-      <h1>Welcome, {{logged[0]}} {{logged[1]}} to UMW Honors Evaluation!</h1>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+    {% if request.path == '/removeannouncement' %}
+        <br>
+        <div class = "alert alert-success" style="width:400px">
+          Announcement removed.  Refresh to see changes.
+        </div>
+        {% endif %}
+    
+      <h1>Welcome, {{logged[0]}} {{logged[1]}} to UMW Honors Degree Evaluation!</h1>
+                    <p>The purpose of this program is to allow for the simple and easy viewing of your UMW Honors Program Checklist.</p>  
+      <p>The navigation bar at the top-left corner of the screen allows access to the core functionality of the website. <i>About</i> contains information about the UMW Honors Program.  <i>View Checklist</i> allows you to view your current Honors Program checklist.  <i>Password Change</i> allows you to change your password, and <i>FAQ</i> allows you to view some frequently asked questions about the UMW Honors Program.</p>
+      
+      <p>Announcements posted by the UMW Honors Program coordinators are located on the left sidebar.  Be sure to check these often as important information can be found here.</p>
+      
+      <p>To log out of the application, use the <i>Log Out</i> button found on the top-right corner of the screen.  You will be logged out automatically if you are inactive for more than 20 minutes.</h4>
+      
+      <p>If this is your first time logging in, please click on <i>Password Change</i> to set a new password.</p>
       <hr>
       <h3></h3>
-      <p>Lorem ipsum...</p>
+     
     </div>
     {% endblock %}
     

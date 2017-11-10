@@ -3,7 +3,8 @@
 <head>
   <title>UMW Honors Program Degree Evaluation</title>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -66,9 +67,11 @@
         <li {% if request.path == '/about' %}class="active"{% endif %}>
             <a href="/about">About</a>
         </li>
-        <li {% if request.path == '/checklist' %}class="active"{% endif %}>
-            <a href="/home">View Checklist</a>
+        {% if not admin %}
+        <li {% if request.path == '/view' %}class="active"{% endif %}>
+            <a href="/view">View Checklist</a>
         </li>
+        {% endif %}
        <!---
         <li {% if request.path == '/upload' %}class="active"{% endif %}>
             <a href="/upload">Upload Checklist (administrator only)</a>
@@ -81,7 +84,7 @@
             <a href="/changepasswordform">Password Change</a>
         </li>
         <li {% if request.path == '/help' %}class="active"{% endif %}>
-            <a href="/help">Help</a>
+            <a href="/help">FAQ</a>
         </li>
       </ul>
       
@@ -119,8 +122,10 @@
       {% endif %}
     </div>
     <div id = "content">{%block content %}{% endblock %}</div>
+    
     <div class="col-sm-2 sidenav" style="background-color: #c6c6cb; border-color: #c6c6cb">
       <!--<a class="twitter-timeline" data-height="90%" href="https://twitter.com/UMaryWash?ref_src=twsrc%5Etfw">Tweets by UMaryWash</a> <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>-->
+      {% if admin == True %}
       <h3>Administrator Resources</h3>
       <hr>
       <p><a href="/announcements">Post Announcements</a></p>
@@ -130,6 +135,7 @@
       <p><a href="/search">Search for Student Checklists</a></p>
       <hr>
     </div>
+    {% endif %}
   </div>
 </div>
 

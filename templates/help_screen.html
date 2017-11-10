@@ -2,21 +2,28 @@
     {% extends "layout.html" %}
     
     {% block content %}
-    <!-- Change this section of text per page -->    
-    <div class="col-sm-8 text-left" style="background-color: #fff"> 
-      <h1>Frequently Asked Questions</h1>
+    <div class="col-sm-8 text-left" style="background-color: #fff">
+      <h2>Honors Program FAQs</h2>
+      {% for item in FAQ %}
+        <p><h4><b>{{item.question}}</b></h4></p>
+        <p>{{item.answer}}</p>
+      {% endfor %}
+      <br>
+      <br>
+      {% if admin == True %}
+      <h3>Add an FAQ Here</h3>
       <hr>
-      <h5><b>Example of a Question 1?</b></h5>
-      <p>Enter Answer here.</p>
-      <h5><b>Example of a Question 2?</b></h5>
-      <p>Enter Answer Here.</p>
-      <h5><b>Example of a Question 3?</b></h5>
-      <p>Enter Answer Here.</p>
-      <h5><b>Example of a Question 4?</b></h5>
-      <p>Enter Answer Here.</p>
-      <h5><b>Example of a Question 5?</b></h5>
-      <p>Answer.</p>
-      <h5><b>Example of a Question 6?</b></h5>
-      <p>Enter Answer Here.</p>
+        <form id ="contact-form" method="post" action="/FAQ_posted">
+      <div class = "col-xs-4">
+        <textarea rows = "1" name = "question" type = "textarea" class = "form-control" placeholder = "Enter the Question Here" value = question required></textarea>
+        <br>
+        <textarea rows = "4" name = "answer" type = "textarea" class = "form-control" placeholder = "Enter the Answer Here" value = answer required></textarea>
+        <br>
+        
+        <input name = "postFAQ" value = "Post FAQ" type = "submit" style="background-color:#00305e; color:#fff;" class = "btn"/>
+      </div>
+      </form>
+      {% endif %}
+
     </div>
     {% endblock %}

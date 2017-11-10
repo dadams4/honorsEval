@@ -1,0 +1,25 @@
+    {% extends "layout.html" %}
+    {% block content %}
+    <div class="col-sm-8 text-left" style="background-color: #fff"> 
+      <h1>Search for Student Records</h1>
+      <hr>
+      <form id ="contact-form" method="post" action="/searchresults">
+      <div class = "col-xs-3">
+        <input name = "fname" type = "text" class = "form-control" placeholder = "Enter Student's first name">
+        <br>
+        <input name = "lname" type = "text" class = "form-control" placeholder = "Enter Student's last name">
+        <br>
+        <!--<input name = "email" type = "email" class = "form-control" placeholder = "Enter Student Email" required>
+        <br>-->
+        <input name = "search" value = "Search Student" type = "submit" style="background-color:#00305e; color:#fff;" class = "btn"/>
+        {% if request.path == '/searchresults' %}
+        <br>
+        <div class = "alert alert-danger" style = "">
+          No student with that name exists in the database.
+        </div>
+        {% endif %}
+      </div>
+      </form>
+      <h3></h3>
+    </div>
+    {% endblock %}

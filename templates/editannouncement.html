@@ -1,0 +1,26 @@
+    {% extends "layout.html" %}
+        {% block content %}
+        <div class="col-sm-8 text-left" style="background-color: #fff"> 
+      
+      <h2>Current Announcement</h2>
+     <p>Current title: <b>{{t}}</b></p>
+     <p>Current message: {{m}}</p>
+      <hr>
+      
+      <h2>Edit Announcement</h2>
+        <form id ="contact-form" method="post" action="/editannouncementconfirm">
+      <div class = "col-xs-3">
+          <input type = "hidden" name = "id" class = "form-control" placeholder = "id" value = {{edit}} readonly>
+          <br>
+        <input type = "text" name = "title" class = "form-control" placeholder = "New announcement Title" value= "" required/>
+        <br>
+        <textarea rows = "4" name = "announcement" type = "textarea" class = "form-control" placeholder = "New announcement text" value = {{m}} required></textarea>
+        <br>
+        <input name = "postannouncement" value = "Update Announcement" type = "submit" style="background-color:#00305e; color:#fff;" class = "btn"/>
+      </div>
+      
+      
+      </form>
+    </div>
+        
+        {% endblock %}

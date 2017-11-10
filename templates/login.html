@@ -3,6 +3,7 @@
 <head>
   <title>UMW Honors Program Evaluation</title>
   <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -44,10 +45,11 @@
   </style>
 </head>
 <body>
-
+  
 <nav class="navbar navbar-inverse" style="background-color:#00305e">
   <div class="container-fluid">
     <div class="navbar-header" >
+       
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -57,6 +59,7 @@
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
+        
         <!--<li class="active"><a href="#">Home</a></li>
         <li><a href="#">About</a></li>
         <li><a href="#">Download Checklist</a></li>
@@ -68,7 +71,6 @@
     </div>
   </div>
 </nav>
-  
 <div class="container-fluid text-center" style="background-color: #fff">    
   <div class="row content">
     <div class="col-sm-2 sidenav" style="background-color: #c6c6cb">
@@ -86,6 +88,12 @@
         <input name = "password" type = "password" class = "form-control" placeholder = "Enter password" required>
         <br>
         <input name = "login" value = "Login" type = "submit" style="background-color:#00305e; color:#fff;" class = "btn"/>
+        {% if request.path == '/home' %}
+        <br>
+        <div class = "alert alert-danger" style = "">
+          Username and password did not match.
+        </div>
+        {% endif %}
       </div>
       </form>
       <h3></h3>

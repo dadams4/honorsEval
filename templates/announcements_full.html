@@ -1,13 +1,36 @@
     {% extends "layout.html" %}
         {% block content %}
         <div class="col-sm-8 text-left" style="background-color: #fff"> 
+        
+        {% if request.path == '/editannouncementconfirm' %}
+        <br>
+        <div class = "alert alert-success" style="width:600px">
+          Announcement updated successfully.  Refresh to see changes.
+        </div>
+        {% endif %}
       <h1>Announcements</h1>
         {% for item in announcements %}
         <p><h3>{{item.title}}</h3></p>
-        <p><b>{{item.time}} on {{item.date}}</b></p>
+        <p><b>Posted at: {{item.time}} on {{item.date}}</b></p>
         <p>{{item.message}}</p>
+        {% if admin %}
+        
+        
+        <div class = "pull-right">
+            <form action = "/removeannouncement" method = "post">
+                <button class = "btn btn-danger" style = "border-color: #000" name = "remove" value= {{item.id}}>Remove</button>
+            </form>
+        </div>
+        <div class = "pull-right">
+            <form action = "/editannouncement" method = "post">
+                <button class = "btn btn-warning " style = "border-color: #000" name = "edit" value = {{item.id}}>Edit</button>
+            </form>
+        </div>
+        
+        {% endif %}
+        <br>
       <hr>
         {% endfor %}
-    </div>
-        
+      </div>
+    
         {% endblock %}

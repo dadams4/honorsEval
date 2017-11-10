@@ -1,6 +1,4 @@
 import os
-import re
-import datetime
 import subprocess
 import uuid
 import smtplib
@@ -10,7 +8,6 @@ from lib.config import *
 from flask import Flask, render_template, session, request, redirect, url_for, current_app
 from flask_uploads import UploadSet, configure_uploads
 from werkzeug.utils import secure_filename
-import flask_login
 #from pdfjinja import PdfJinja
 
 UPLOAD_FOLDER = "/home/ubuntu/workspace/CSVFiles"
@@ -34,17 +31,8 @@ from lib import postgresql_data as pg
 #Global variables passed by the server to html pages
 logged = ''
 announcements = ''
-searchedResults = ''
-password_success = False
+searched = ''
 isAdmin = True
-
-@app.before_request
-def before_request():
-    session.permanent = True
-    app.permanent_session_lifetime = datetime.timedelta(minutes=20)
-    session.modified = True
-    user = flask_login.current_user
-    
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -89,6 +77,8 @@ def send_email(recip, message):
     
 def new_user_email():
     
+    #TODO: fix formatting of firstname and lastname in database to remove single quotes from data
+    
     #This block creates new users and then emails them their login credentials
             new_users = pg.find_new_users()
             
@@ -99,27 +89,20 @@ def new_user_email():
                 lname = pg.get_all_new_lastnames(email)
                 rand_pass = str(uuid.uuid4())[0:8]
                 
-                fname = fname[3:-3]
-                lname = lname[3:-3]
+                fname = fname[2:-2]
+                lname = lname[2:-2]
                                
                 pg.add_user(str(email)[2:-2], rand_pass, fname, lname)
                         
                 #WARNING.  IF THE LINES BELOW THIS ARE UNCOMMENTED THEY WILL SEND EMAILS TO ALL STUDENTS IN THE CSV FILE UPON SUCCESSFUL UPLOAD.  MAKE SURE IT IS COMMENTED OUT WHEN TESTING CSV UPLOADING, OR USE A SEPARATE CSV FILE.
                 
-                #message_body = """Subject: Welcome to UMW Honors Degree Evaluation\nHello, and welcome to UMW Honors Program Degree evaluation.\nPlease navigate to https://honorseval1-aarondyke.c9users.io to log in. Your username is your full UMW email and your temporary password is """ +  rand_pass +  """. Please change your password once you log in for the first time.\n\nThank you,\n\nUMW Honors Degree Evaluation Team"""
-                #send_email(email, message_body)
+                message_body = """Subject: Welcome to UMW Honors Degree Evaluation\nHello, and welcome to UMW Honors Program Degree evaluation.\nPlease navigate to website url to log in. Your username is your full UMW email and your temporary password is """ +  rand_pass +  """. Please change your password once you log in for the first time.\n\nThank you,\n\nUMW Honors Degree Evaluation Team"""
+                send_email(email, message_body)
 
-def validate_password(password):
-
-    if re.search(r"[a-z]", password) is None or re.search(r"[A-Z]", password) is None or re.search(r"\d", password) is None or len(password) < 8 or len(password) > 30:
-        return False
-    else:
-        return True
-
-#Keeps administrator resources from being rendered for non-admin users
+#Keeps administrator resources from being render for non-admin users
 def check_admin():
     
-    if session['userName'] != "dadams@umw.edu" and session['userName'] != "awoodruf@umw.edu" and session['userName'] != "jhurnyak@umw.edu" and session['userName'] != "adyke@mail.umw.edu" and session['userName'] != "test_user":
+    if session['userName'] != "dadams@umw.edu" and session['userName'] != "awoodruf@umw.edu" and session['userName'] != "jhurnyak@umw.edu" and session['userName'] != "adyke@mail.umw.edu":
         
         isAdmin = False
     else:
@@ -222,32 +205,9 @@ def helpPage():
             return render_template("error.html")
     
     announcement_result = pg.get_five_announcements()
-    FAQ_result = pg.get_FAQ()
     isAdmin = check_admin()
     
-    return render_template('help_screen.html', announcements = announcement_result, FAQ = FAQ_result, admin = isAdmin)
-
-#This handles the posting of announcements
-@app.route('/FAQ_posted', methods = ['POST'])
-def FAQPosted():
-    
-    #Prevents page from being rendered unless it is being accessed through a valid session
-    if request.method == 'GET':
-        try: 
-            if not session['userName']:
-        
-                return render_template("error.html")
-        
-        except KeyError:
-        
-            return render_template("error.html")
-        
-    announcement_result = pg.get_five_announcements()
-    
-    pg.post_FAQ(request.form['question'], request.form['answer'])
-    isAdmin = check_admin()
-    
-    return render_template('FAQposted.html', announcements = announcement_result, admin = isAdmin)
+    return render_template('help_screen.html', announcements = announcement_result, admin = isAdmin)
     
 @app.route('/upload', methods = ['GET', 'POST'])
 def uploadPage():
@@ -296,8 +256,8 @@ def uploadPage():
 
             pg.import_csv()
             
-            #WARNING.  IF THE LINE BELOW THIS is UNCOMMENTED it WILL SEND EMAILS TO ALL STUDENTS IN THE CSV FILE UPON SUCCESSFUL UPLOAD.  MAKE SURE IT IS COMMENTED OUT WHEN TESTING CSV UPLOADING, OR USE A SEPARATE CSV FILE.
-            new_user_email()
+            #WARNING.  IF THE LINE BELOW THIS AR UNCOMMENTED THEY WILL SEND EMAILS TO ALL STUDENTS IN THE CSV FILE UPON SUCCESSFUL UPLOAD.  MAKE SURE IT IS COMMENTED OUT WHEN TESTING CSV UPLOADING, OR USE A SEPARATE CSV FILE.
+
     
     announcement_result = pg.get_five_announcements()
     isAdmin = check_admin()
@@ -314,10 +274,11 @@ def confirmUploadPage():
     
     pg.upload_csv(file)
     
+    
     return render_template('upload.html')
 
 #Handles administrator searching of a student's records
-@app.route('/search', methods = ['GET'])
+@app.route('/search', methods = ['POST'])
 def searchChecklist():
     
     #Prevents page from being rendered unless it is being accessed through a valid session
@@ -330,79 +291,17 @@ def searchChecklist():
         except KeyError:
         
             return render_template("error.html")
-    
-    #TODO: Populate the html with this data 
-    announcement_result = pg.get_five_announcements()
-    isAdmin = check_admin()
-    
-    return render_template('search.html', announcements = announcement_result, admin = isAdmin)        
-    
-@app.route('/searchresults', methods = ['POST'])
-def searchResultsPage():
-    
-    #Prevents page from being rendered unless it is being accessed through a valid session
-    if request.method == 'GET':
-        try: 
-            if not session['userName']:
-        
-                return render_template("error.html")
-        
-        except KeyError:
-        
-            return render_template("error.html")    
-    
-    if request.method == 'POST':
-        
-        announcement_result = pg.get_five_announcements()
-        isAdmin = check_admin()
-        
-        name_to_search = request.form['fname']
-        
-        lname_to_search = request.form['lname']
-        
-        name_to_search = name_to_search.title()
-        lname_to_search = lname_to_search.title()
-        
-        #email_to_search = request.form['email']
-        searchedResults = pg.search_checklist(name_to_search, lname_to_search)
-        
-        if not searchedResults:
-
-            return render_template('search.html', announcements = announcement_result, admin = isAdmin, searched = searchedResults)
-    
-        else:    
-        
-            return render_template('adminchecklistview.html', announcements = announcement_result, admin = isAdmin, searched = searchedResults)
-
-@app.route('/view', methods = ['GET'])
-def viewChecklist():
-    
-    #Prevents page from being rendered unless it is being accessed through a valid session
-    if request.method == 'GET':
-        try: 
-            if not session['userName']:
-        
-                return render_template("error.html")
-        
-        except KeyError:
-        
-            return render_template("error.html")
             
-    announcement_result = pg.get_five_announcements()
-    isAdmin = check_admin()
+    #TODO: Populate the html with this data 
     
-    fname = pg.get_name(session['userName'], session['passWord'])
-    lname = pg.get_last_name(session['userName'], session['passWord'])
+    #name_to_search = request.form['fname']
     
-    fname = unicode(fname)[2:-2]
-    lname = unicode(lname)[2:-2]
+    #lname_to_search = request.form['lname']
     
-    print(fname + " " + fname)
+    email_to_search = request.form['email']
     
-    searchedResults = pg.search_checklist(fname, lname)
-    
-    return render_template("studentchecklistview.html", announcements = announcement_result, admin = isAdmin, searched = searchedResults)
-        
+    search_checklist(email_to_search)
+            
 @app.route('/changepasswordform', methods = ['GET'])
 def updatePasswordFormPage():
     
@@ -435,22 +334,15 @@ def updatePasswordPage():
         if request.form['password1'] != request.form['password2']:
         
             return render_template('passwordchange.html', announcements = announcement_result, admin = isAdmin)
-            
-        elif not validate_password(request.form['password1']):
-        
-            return render_template('passwordchange.html', announcements = announcement_result, admin = isAdmin)
     
         else:
+            
             
             pg.change_password(request.form['password2'], session['userName'])
             
             name = pg.get_name(session['userName'], request.form['password2'])
             
-            password_success = True
-            
-            session['passWord'] = request.form['password2']
-            
-            return render_template("passwordchange.html", logged = name, announcements = announcement_result, admin = isAdmin, pass_ = password_success)
+            return render_template("index.html", logged = name, announcements = announcement_result, admin = isAdmin)
             
     else:
         
@@ -460,99 +352,14 @@ def updatePasswordPage():
 @app.route('/logout', methods = ['POST', 'GET'])
 def logOut():
     
-    #Prevents page from being rendered unless it is being accessed through a valid session
     if request.method == 'GET':
-        try: 
-            if not session['userName']:
         
-                return render_template("error.html")
-        
-        except KeyError:
-        
-            return render_template("error.html")
-            
+        return render_template("error.html")
+    
     session.clear()
     
     return render_template("login.html")
-
-@app.route('/removeannouncement', methods = ['POST'])
-def removeAnnouncement():
     
-    #Prevents page from being rendered unless it is being accessed through a valid session
-    if request.method == 'GET':
-        try: 
-            if not session['userName']:
-        
-                return render_template("error.html")
-        
-        except KeyError:
-        
-            return render_template("error.html")
-            
-    announcement_result = pg.get_five_announcements()
-    isAdmin = check_admin()
-    
-    print(request.form['remove'])
-    name = pg.get_name(session['userName'], session['passWord'])
-    
-    ID = request.form['remove']
-    ID = (ID, )
-    
-    pg.delete_announcement(ID)
-    
-    return render_template('index.html', logged = name, announcements = announcement_result, admin = isAdmin)
-
-@app.route('/editannouncement', methods = ['POST'])
-def editAnnouncement():
-    
-    #Prevents page from being rendered unless it is being accessed through a valid session
-    if request.method == 'GET':
-        try: 
-            if not session['userName']:
-        
-                return render_template("error.html")
-        
-        except KeyError:
-        
-            return render_template("error.html")
-    
-    announcement_result = pg.get_five_announcements()
-    isAdmin = check_admin()
-    
-    ID = request.form['edit']
-    ID = (ID, )
-    
-    title = pg.get_announcement_title(ID)
-    message = pg.get_announcement_message(ID)
-    
-    title = unicode(title)[3:-3]
-    message = unicode(message)[3:-3]
-    
-    return render_template('editannouncement.html', announcements = announcement_result, admin = isAdmin, t = title, m = message, edit = ID )
-
-@app.route('/editannouncementconfirm', methods = ['POST'])
-def editAnnouncementConfirm():
-    
-    if request.method == 'GET':
-        try: 
-            if not session['userName']:
-        
-                return render_template("error.html")
-        
-        except KeyError:
-        
-            return render_template("error.html")
-            
-    announcement_result = pg.get_five_announcements()
-    isAdmin = check_admin()
-    
-    ID = request.form['id'][3:-3]
-    now = 'now()'
-    
-    pg.edit_announcement(request.form['title'], request.form['announcement'], now, ID)
-    
-    return render_template("announcements_full.html", announcements = announcement_result, admin = isAdmin)
-
 @app.route('/home', methods = ['GET','POST'])
 def landingPage():
 
@@ -582,6 +389,7 @@ def landingPage():
     print(session['userName'] + " Has logged in")
     
     result = pg.get_login(session['userName'], session['passWord'])
+    
     
     isAdmin = check_admin()
     

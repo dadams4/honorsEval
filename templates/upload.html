@@ -23,5 +23,12 @@
         <input value = "Upload" type = "submit" class = "btn" style = "background-color: #00305e; color: #fff"/>
       </form>
       
+      {% if request.path == '/upload' %}
+        <br>
+        <div class = "alert alert-success" style="width:200px">
+          File uploaded successfully.
+        </div>
+        {% endif %}
+      
     </div>
     {% endblock %}
