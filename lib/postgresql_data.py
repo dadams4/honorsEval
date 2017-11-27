@@ -18,7 +18,7 @@ def connectToPSQLDB():
 		
 #Code that performs the actual query
 def queryDB(query, conn, select=True, args=None):
-	print("Executing a query")
+	#print("Executing a query")
 	
 	cur = conn.cursor(cursor_factory = psycopg2.extras.DictCursor)
 	results = None
@@ -204,6 +204,30 @@ def delete_announcement(ID):
 	conn.close()
 	return 0
 	
+	
+def edit_FAQ(question, answer, ID):
+	
+	conn = connectToPSQLDB()
+	if conn == None:
+		return None
+		
+	query_string = "update faq set question = %s, answer = %s, id = %s"
+	
+	queryDB(query_string, conn, select = False, args = (question, answer, ID))
+	conn.close()
+	return 0
+
+def delete_FAQ(ID):
+	
+	conn = connectToPSQLDB()
+	if conn == None:
+		return None
+		
+	query_string = "delete from faq where id = %s"
+	queryDB(query_string, conn, select = False, args=(ID))
+	conn.close()
+	return 0
+	
 def get_FAQ():
 	
 	conn = connectToPSQLDB()
@@ -216,6 +240,33 @@ def get_FAQ():
 	#print(query_string)
 	conn.close()
 	#print(results)
+	return results
+	
+def get_faq_question(ID):
+	
+	conn = connectToPSQLDB()
+	if conn == None:
+		return None
+		
+	query_string = "select question from faq where id = %s"
+	
+	results = queryDB(query_string, conn, select = True, args = (ID))
+	#print(results)
+	conn.close()
+	return results	
+
+def get_faq_answer(ID):
+	
+	conn = connectToPSQLDB()
+	if conn == None:
+		return None
+		
+	query_string = "select answer from faq where id = %s"
+	print(query_string)
+	#print(ID)
+	results = queryDB(query_string, conn, select = True, args = (ID))
+	print(results)
+	conn.close()
 	return results
 	
 def post_FAQ(question, answer):

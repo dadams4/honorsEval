@@ -106,8 +106,18 @@ def new_user_email():
                         
                 #WARNING.  IF THE LINES BELOW THIS ARE UNCOMMENTED THEY WILL SEND EMAILS TO ALL STUDENTS IN THE CSV FILE UPON SUCCESSFUL UPLOAD.  MAKE SURE IT IS COMMENTED OUT WHEN TESTING CSV UPLOADING, OR USE A SEPARATE CSV FILE.
                 
-                #message_body = """Subject: Welcome to UMW Honors Degree Evaluation\nHello, and welcome to UMW Honors Program Degree evaluation.\nPlease navigate to https://honorseval1-aarondyke.c9users.io to log in. Your username is your full UMW email and your temporary password is """ +  rand_pass +  """. Please change your password once you log in for the first time.\n\nThank you,\n\nUMW Honors Degree Evaluation Team"""
-                #send_email(email, message_body)
+                message_body = """Subject: Welcome to UMW Honors Degree Evaluation\nHello, and welcome to UMW Honors Program Degree evaluation.\nPlease navigate to https://honorseval1-aarondyke.c9users.io to log in. Your username is your full UMW email and your temporary password is """ +  rand_pass +  """. Please change your password once you log in for the first time.\n\nThank you,\n\nUMW Honors Degree Evaluation Team"""
+                send_email(email, message_body)
+
+def password_reset_email(email):
+    
+    rand_pass = str(uuid.uuid4())[0:8]
+    
+    message_body = """Subject: Password reset request for UMW Honors Degree Evaluationn\nHello, you are receiving this email because you requested a password change for your account.\nYour new password is: """ +  rand_pass +  """. Please navigate to https://honorseval1-aarondyke.c9users.io to log in. Please change your password once you log in.\n\nThank you,\n\nUMW Honors Degree Evaluation Team"""
+    
+    send_email(email, message_body)
+    pg.change_password(rand_pass, email)
+
 
 def validate_password(password):
 
@@ -147,6 +157,10 @@ def annoucementsPage():
         
             return render_template("error.html")
     
+    #Prevents non-admins from reaching upload screen.  Will update with Jeanne's credentials when they are created.
+    if check_admin() == False:
+            
+        return render_template("autherror.html")
     
     announcement_result = pg.get_five_announcements()
     isAdmin = check_admin()
@@ -154,7 +168,7 @@ def annoucementsPage():
     return render_template('announcements.html', announcements = announcement_result, admin = isAdmin)
 
 #This handles the posting of announcements
-@app.route('/announcement_posted', methods = ['POST'])
+@app.route('/announcement_posted', methods = ['POST' , 'GET'])
 def announcementsPosted():
     
     now = "now()"
@@ -228,19 +242,13 @@ def helpPage():
     return render_template('help_screen.html', announcements = announcement_result, FAQ = FAQ_result, admin = isAdmin)
 
 #This handles the posting of announcements
-@app.route('/FAQ_posted', methods = ['POST'])
+@app.route('/FAQ_posted', methods = ['GET', 'POST'])
 def FAQPosted():
     
     #Prevents page from being rendered unless it is being accessed through a valid session
     if request.method == 'GET':
-        try: 
-            if not session['userName']:
-        
-                return render_template("error.html")
-        
-        except KeyError:
-        
-            return render_template("error.html")
+       
+        return render_template("error.html")
         
     announcement_result = pg.get_five_announcements()
     
@@ -264,10 +272,10 @@ def uploadPage():
         
             return render_template("error.html")
     
-        #Prevents non-admins from reaching upload screen.  Will update with Jeanne's credentials when they are created.
-        if session['userName'] != "dadams@umw.edu" and session['userName'] != "awoodruf@umw.edu" and session['userName'] != "jhurnyak@umw.edu" and session['userName'] != "adyke@mail.umw.edu":
+    #Prevents non-admins from reaching upload screen.  Will update with Jeanne's credentials when they are created.
+    if check_admin() == False:
             
-            return render_template("autherror.html")
+        return render_template("autherror.html")
         
     if request.method == 'POST':
         # check if the post request has the file part
@@ -305,8 +313,12 @@ def uploadPage():
     return render_template('upload.html', announcements = announcement_result, admin = isAdmin)
 
 #This just uploads the file I think unless the above function actually does that
-@app.route('/uploadconfirm', methods = ['POST'])
+@app.route('/uploadconfirm', methods = ['POST', 'GET'])
 def confirmUploadPage():
+    
+    if request.method == 'GET':
+        
+        return render_template("error.html")
     
     print(request.form['file'])
     
@@ -331,25 +343,24 @@ def searchChecklist():
         
             return render_template("error.html")
     
+    #Prevents non-admins from reaching upload screen.  Will update with Jeanne's credentials when they are created.
+        if check_admin() == False:
+            
+            return render_template("autherror.html")
+    
     #TODO: Populate the html with this data 
     announcement_result = pg.get_five_announcements()
     isAdmin = check_admin()
     
     return render_template('search.html', announcements = announcement_result, admin = isAdmin)        
     
-@app.route('/searchresults', methods = ['POST'])
+@app.route('/searchresults', methods = ['POST', 'GET'])
 def searchResultsPage():
     
     #Prevents page from being rendered unless it is being accessed through a valid session
     if request.method == 'GET':
-        try: 
-            if not session['userName']:
-        
-                return render_template("error.html")
-        
-        except KeyError:
-        
-            return render_template("error.html")    
+       
+       return render_template('error.html')  
     
     if request.method == 'POST':
         
@@ -402,6 +413,18 @@ def viewChecklist():
     searchedResults = pg.search_checklist(fname, lname)
     
     return render_template("studentchecklistview.html", announcements = announcement_result, admin = isAdmin, searched = searchedResults)
+
+@app.route('/passwordresetform', methods = ['GET', 'POST'])
+def resetPasswordForm():
+    
+    return render_template('resetpassword.html')
+
+@app.route('/passwordreset', methods = ['POST', 'GET'])
+def resetPassword(user_email):
+    
+    password_reset_email(request.form['email'])
+    
+    return render_template('resetpassword.html', youremail = request.form['email'])
         
 @app.route('/changepasswordform', methods = ['GET'])
 def updatePasswordFormPage():
@@ -475,20 +498,19 @@ def logOut():
     
     return render_template("login.html")
 
-@app.route('/removeannouncement', methods = ['POST'])
+@app.route('/removeannouncement', methods = ['POST', 'GET'])
 def removeAnnouncement():
     
     #Prevents page from being rendered unless it is being accessed through a valid session
     if request.method == 'GET':
-        try: 
-            if not session['userName']:
         
-                return render_template("error.html")
-        
-        except KeyError:
-        
-            return render_template("error.html")
+        return render_template("error.html")
+    
+    #Prevents non-admins from reaching upload screen.  Will update with Jeanne's credentials when they are created.
+    if check_admin() == False:
             
+        return render_template("autherror.html")
+    
     announcement_result = pg.get_five_announcements()
     isAdmin = check_admin()
     
@@ -502,7 +524,33 @@ def removeAnnouncement():
     
     return render_template('index.html', logged = name, announcements = announcement_result, admin = isAdmin)
 
-@app.route('/editannouncement', methods = ['POST'])
+@app.route('/removeFAQ', methods = ['POST', 'GET'])
+def removeFAQ():
+    
+    #Prevents page from being rendered unless it is being accessed through a valid session
+    if request.method == 'GET':
+        
+        return render_template("error.html")
+    
+    #Prevents non-admins from reaching upload screen.  Will update with Jeanne's credentials when they are created.
+    if check_admin() == False:
+            
+        return render_template("autherror.html")
+        
+    announcement_result = pg.get_five_announcements()
+    isAdmin = check_admin()
+    
+    print(request.form['remove'])
+    name = pg.get_name(session['userName'], session['passWord'])
+    
+    ID = request.form['remove']
+    ID = (ID, )
+    
+    pg.delete_FAQ(ID)
+    
+    return render_template('help_screen.html', logged = name, announcements = announcement_result, admin = isAdmin)
+    
+@app.route('/editannouncement', methods = ['POST', 'GET'])
 def editAnnouncement():
     
     #Prevents page from being rendered unless it is being accessed through a valid session
@@ -515,6 +563,11 @@ def editAnnouncement():
         except KeyError:
         
             return render_template("error.html")
+    
+    #Prevents non-admins from reaching upload screen.  Will update with Jeanne's credentials when they are created.
+    if check_admin() == False:
+            
+        return render_template("autherror.html")
     
     announcement_result = pg.get_five_announcements()
     isAdmin = check_admin()
@@ -530,7 +583,7 @@ def editAnnouncement():
     
     return render_template('editannouncement.html', announcements = announcement_result, admin = isAdmin, t = title, m = message, edit = ID )
 
-@app.route('/editannouncementconfirm', methods = ['POST'])
+@app.route('/editannouncementconfirm', methods = ['POST', 'GET'])
 def editAnnouncementConfirm():
     
     if request.method == 'GET':
@@ -542,6 +595,11 @@ def editAnnouncementConfirm():
         except KeyError:
         
             return render_template("error.html")
+    
+    #Prevents non-admins from reaching upload screen.  Will update with Jeanne's credentials when they are created.
+    if check_admin() == False:
+            
+        return render_template("autherror.html")
             
     announcement_result = pg.get_five_announcements()
     isAdmin = check_admin()
@@ -552,6 +610,67 @@ def editAnnouncementConfirm():
     pg.edit_announcement(request.form['title'], request.form['announcement'], now, ID)
     
     return render_template("announcements_full.html", announcements = announcement_result, admin = isAdmin)
+
+@app.route('/editFAQ', methods = ['POST', 'GET'])
+def editFAQ():
+    
+    #Prevents page from being rendered unless it is being accessed through a valid session
+    if request.method == 'GET':
+        try: 
+            if not session['userName']:
+        
+                return render_template("error.html")
+        
+        except KeyError:
+        
+            return render_template("error.html")
+    
+    #Prevents non-admins from reaching upload screen.  Will update with Jeanne's credentials when they are created.
+    if check_admin() == False:
+            
+        return render_template("autherror.html")
+    
+    announcement_result = pg.get_five_announcements()
+    isAdmin = check_admin()
+    
+    ID = request.form['edit']
+    ID = (ID, )
+    
+    title = pg.get_faq_question(ID)
+    message = pg.get_faq_answer(ID)
+    
+    title = unicode(title)[3:-3]
+    message = unicode(message)[3:-3]
+    
+    return render_template('editFAQ.html', announcements = announcement_result, admin = isAdmin, t = title, m = message, edit = ID )
+
+@app.route('/editFAQconfirm', methods = ['GET', 'POST'])
+def editFAQConfirm():
+    
+    if request.method == 'GET':
+        try: 
+            if not session['userName']:
+        
+                return render_template("error.html")
+        
+        except KeyError:
+        
+            return render_template("error.html")
+    
+    #Prevents non-admins from reaching upload screen.  Will update with Jeanne's credentials when they are created.
+    if check_admin() == False:
+            
+        return render_template("autherror.html")
+            
+    announcement_result = pg.get_five_announcements()
+    isAdmin = check_admin()
+    
+    ID = request.form['id'][3:-3]
+    now = 'now()'
+    
+    pg.edit_FAQ(request.form['title'], request.form['announcement'], ID)
+    
+    return render_template("help_screen.html", announcements = announcement_result, admin = isAdmin)
 
 @app.route('/home', methods = ['GET','POST'])
 def landingPage():

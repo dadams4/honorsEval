@@ -1,0 +1,22 @@
+    {% extends "layout.html" %}
+        {% block content %}
+        <div class="col-sm-8 text-left" style="background-color: #fff"> 
+      
+      
+      <h2>Edit Announcement</h2>
+        <form id ="contact-form" method="post" action="/editFAQconfirm">
+      <div class = "col-xs-3">
+          <input type = "hidden" name = "id" class = "form-control" placeholder = "id" value = {{edit}} readonly>
+          <br>
+        <textarea rows = "2" type = "text" name = "title" class = "form-control" placeholder = "New FAQ Title" value= "" required>{{t}}</textarea>
+        <br>
+        <textarea rows = "4" name = "announcement" type = "textarea" class = "form-control" placeholder = "New FAQ text" required>{{m}}</textarea>
+        <br>
+        <input name = "editFAQConfirm" value = "Update FAQ" type = "submit" style="background-color:#00305e; color:#fff;" class = "btn"/>
+      </div>
+      
+      
+      </form>
+    </div>
+        
+        {% endblock %}

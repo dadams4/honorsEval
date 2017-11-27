@@ -1,3 +1,34 @@
+    <style>
+    
+    /* On small screens, set height to 'auto' for sidenav and grid */
+    @media screen and (max-width: 787px) {
+      .sidenav {
+        height: auto;
+        padding: 15px;
+        display:none;
+      }
+      .row.content {height:50%;} 
+    
+    .navbar{
+      height:150px;
+    }
+    footer{
+      height:15px;
+      margin-top:-10px;
+    }
+    input{
+      width:200px;
+    }
+    form{
+      width:700px;
+    }
+    h1{
+      font-size: 30px;
+    }
+    }
+    
+    </style>
+    
     {% extends "layout.html" %}
         {% block content %}
         <div class="col-sm-8 text-left" style="background-color: #fff"> 
@@ -55,7 +86,7 @@
                 <td><b>Leardership</b></td><td>{{item.leadership}}</td>
             </tr>
             <tr>
-                <td><b>Reaserch Date</b></td><td>{{item.researchdate}}</td>
+                <td><b>Research Date</b></td><td>{{item.researchdate}}</td>
                 <td><b>Capstone Date</b></td><td>{{item.capstonedate}}</td>
                 <td><b>Mentoring</b></td><td>{{item.mentoring}}</td>
             </tr>

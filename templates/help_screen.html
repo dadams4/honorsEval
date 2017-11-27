@@ -3,10 +3,38 @@
     
     {% block content %}
     <div class="col-sm-8 text-left" style="background-color: #fff">
+      {% if request.path == '/removeFAQ' %}
+        <br>
+        <div class = "alert alert-success" style="width:600px">
+          FAQ removed succesfully.  Refresh to see changes.
+        </div>
+        {% endif %}
+        
+        {% if request.path == '/editFAQconfirm' %}
+        <br>
+        <div class = "alert alert-success" style="width:600px">
+          FAQ updated successfully.  Refresh to see changes.
+        </div>
+        {% endif %}
       <h2>Honors Program FAQs</h2>
       {% for item in FAQ %}
         <p><h4><b>{{item.question}}</b></h4></p>
         <p>{{item.answer}}</p>
+        {% if admin %}
+        
+        
+        <div class = "pull-right">
+            <form action = "/removeFAQ" method = "post">
+                <button class = "btn btn-danger" style = "border-color: #000" name = "remove" value= {{item.id}}>Remove</button>
+            </form>
+        </div>
+        <div class = "pull-right">
+            <form action = "/editFAQ" method = "post">
+                <button class = "btn btn-warning " style = "border-color: #000" name = "edit" value = {{item.id}}>Edit</button>
+            </form>
+        </div>
+        
+        {% endif %}
       {% endfor %}
       <br>
       <br>

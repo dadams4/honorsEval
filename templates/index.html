@@ -8,6 +8,12 @@
           Announcement removed.  Refresh to see changes.
         </div>
         {% endif %}
+    {% if request.path == '/removeFAQ' %}
+        <br>
+        <div class = "alert alert-success" style="width:400px">
+          FAQ removed.  Refresh to see changes.
+        </div>
+        {% endif %}
     
       <h1>Welcome, {{logged[0]}} {{logged[1]}} to UMW Honors Degree Evaluation!</h1>
                     <p>The purpose of this program is to allow for the simple and easy viewing of your UMW Honors Program Checklist.</p>  

@@ -24,11 +24,12 @@
       </form>
       
       {% if request.path == '/upload' %}
+      {% if ft == False %}
         <br>
         <div class = "alert alert-success" style="width:200px">
           File uploaded successfully.
         </div>
         {% endif %}
-      
+      {% endif %}
     </div>
     {% endblock %}

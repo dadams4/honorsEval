@@ -1,6 +1,12 @@
     {% extends "layout.html" %}
         {% block content %}
         <div class="col-sm-8 text-left" style="background-color: #fff"> 
+        {% if request.path == '/removeannouncement' %}
+        <br>
+        <div class = "alert alert-success" style="width:600px">
+          Announcement removed succesfully.  Refresh to see changes.
+        </div>
+        {% endif %}
         
         {% if request.path == '/editannouncementconfirm' %}
         <br>
