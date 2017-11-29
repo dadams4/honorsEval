@@ -39,7 +39,7 @@
 <p>sudo sudo -u postgres psql</p>
 <p>\password <your password here></p>
 
-<h3>All other times:</h3>
+<h4>All other times:</h4>
 
 <p>psql -U postgres -h localhost</p>
 
