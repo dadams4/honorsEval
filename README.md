@@ -15,34 +15,34 @@
 <h2>Installation Instructions:</h2>
 
 <h3>Always run first:</h3>
-<li>sudo apt-get update</li>
-<li>sudo apt-get upgrade</li>
+<p>sudo apt-get update</p>
+<p>sudo apt-get upgrade</p>
 
 <h3>Packages:</h3>
 
-<li>sudo easy_install flask markdown</li>
-<li>sudo apt-get install python-setuptools</li>
-<li>sudo apt-get install postgresql</li>
-<li>sudo apt-get install python-psycopg2</li>
+<p>sudo easy_install flask markdown</p>
+<p>sudo apt-get install python-setuptools</p>
+<p>sudo apt-get install postgresql</p>
+<p>sudo apt-get install python-psycopg2</p>
 
 
 <h3>Google Cloud Only:</h3>
 
-sudo apt-get install gunicorn</li>
-sudo apt-get install supervisor</li>
+<p>sudo apt-get install gunicorn</p>
+<p>sudo apt-get install supervisor</p>
 
 
 <h3>To enter Postgres:</h3>
 
 <h4>First time:</h4> 
 
-<li>sudo sudo -u postgres psql</li>
-<li>\password <your password here></li>
+<p>sudo sudo -u postgres psql</p>
+<p>\password <your password here></p>
 
 <h3>All other times:</h3>
 
-<li>psql -U postgres -h localhost</li>
+<p>psql -U postgres -h localhost</p>
 
 <br>
 
-<a href="35.199.60.177">Example of this app running online</a>
+<p><a href="35.199.60.177">Example of this app running online</a></p>
