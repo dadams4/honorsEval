@@ -45,4 +45,4 @@
 
 <br>
 
-<p><a href="35.199.60.177">Example of this app running online</a></p>
+<p><a href="http://35.199.60.177">Example of this app running online</a></p>
