@@ -293,7 +293,7 @@ def import_csv():
 	queryDB(query_string2, conn, select = False, args=())
 	
 	
-	query_string = "copy checklist from '/home/ubuntu/workspace/CSVFiles/cleanedCSV.csv' (FORMAT CSV, DELIMITER ',', HEADER)"
+	query_string = "copy checklist from '/home/danieladamsumw/CSVFiles/cleanedCSV.csv' (FORMAT CSV, DELIMITER ',', HEADER)"
 	queryDB(query_string, conn, select = False, args =())
 	
 	conn.close()

@@ -13,10 +13,10 @@ from werkzeug.utils import secure_filename
 import flask_login
 #from pdfjinja import PdfJinja
 
-UPLOAD_FOLDER = "/home/ubuntu/workspace/CSVFiles"
+UPLOAD_FOLDER = "/home/danieladamsumw/CSVFiles"
 ALLOWED_EXTENSIONS = set(['csv'])
 
-UPLOADS_DEFAULT_DEST = "/home/ubuntu/workspace/CSVFiles"
+UPLOADS_DEFAULT_DEST = "/home/danieladamsumw/CSVFiles"
 files = UploadSet('files', ("csv"))
 
 #pdfjinja = PdfJinja('form.pdf', current_app.jinja_env)
@@ -106,7 +106,7 @@ def new_user_email():
                         
                 #WARNING.  IF THE LINES BELOW THIS ARE UNCOMMENTED THEY WILL SEND EMAILS TO ALL STUDENTS IN THE CSV FILE UPON SUCCESSFUL UPLOAD.  MAKE SURE IT IS COMMENTED OUT WHEN TESTING CSV UPLOADING, OR USE A SEPARATE CSV FILE.
                 
-                message_body = """Subject: Welcome to UMW Honors Degree Evaluation\nHello, and welcome to UMW Honors Program Degree evaluation.\nPlease navigate to https://honorseval1-aarondyke.c9users.io to log in. Your username is your full UMW email and your temporary password is """ +  rand_pass +  """. Please change your password once you log in for the first time.\n\nThank you,\n\nUMW Honors Degree Evaluation Team"""
+                message_body = """Subject: Welcome to UMW Honors Degree Evaluation\nHello, and welcome to UMW Honors Program Degree evaluation.\nPlease navigate to 35.199.60.177 to log in. Your username is your full UMW email and your temporary password is """ +  rand_pass +  """. Please change your password once you log in for the first time.\n\nThank you,\n\nUMW Honors Degree Evaluation Team"""
                 send_email(email, message_body)
 
 def password_reset_email(email):
@@ -298,9 +298,9 @@ def uploadPage():
             
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             
-            replace_first_line("/home/ubuntu/workspace/CSVFiles/" + filename, "/home/ubuntu/workspace/CSVFiles/cleanedCSV.csv", "LastName,FirstName,ID,email,Admitted,duPontCode,Status,Term,CoCur1,Date1,FSEMHN,FSEMDate,HNcourse1,HN1Date,HNcourse2,HN2Date,HNcourse3,HN3Date,HNcourse4,HN4Date,HNcourse5,HN5Date,ResearchCourse,ResearchDate,CapstoneCourse,CapstoneDate,HONR201,HONR201Date,Leadership,mentoring,HONRPortfolio4,HONRPortfolio1,HONRPortfolio2,HONRPortfolio3,ExitInterview")
+            replace_first_line("/home/danieladamsumw/CSVFiles/" + filename, "/home/danieladamsumw/CSVFiles/cleanedCSV.csv", "LastName,FirstName,ID,email,Admitted,duPontCode,Status,Term,CoCur1,Date1,FSEMHN,FSEMDate,HNcourse1,HN1Date,HNcourse2,HN2Date,HNcourse3,HN3Date,HNcourse4,HN4Date,HNcourse5,HN5Date,ResearchCourse,ResearchDate,CapstoneCourse,CapstoneDate,HONR201,HONR201Date,Leadership,mentoring,HONRPortfolio4,HONRPortfolio1,HONRPortfolio2,HONRPortfolio3,ExitInterview")
             
-            subprocess.call(["sed", "-i", 's/\r//', '/home/ubuntu/workspace/CSVFiles/cleanedCSV.csv'])
+            subprocess.call(["sed", "-i", 's/\r//', '/home/danieladamsumw/CSVFiles/cleanedCSV.csv'])
 
             pg.import_csv()
             
@@ -672,6 +672,21 @@ def editFAQConfirm():
     
     return render_template("help_screen.html", announcements = announcement_result, admin = isAdmin)
 
+@app.route('/bugreport', methods = ['GET'])
+def bugReport():
+    
+    if request.method == 'GET':
+        try: 
+            if not session['userName']:
+
+                return render_template("error.html")
+        except KeyError:
+            return render_template("error.html")
+    announcement_result = pg.get_five_announcements()
+    isAdmin = check_admin()
+
+    return render_template("bugreport.html", announcements = announcement_result, admin = isAdmin)
+
 @app.route('/home', methods = ['GET','POST'])
 def landingPage():
 
@@ -718,4 +733,4 @@ def landingPage():
 
 if __name__ == '__main__':
     
-    app.run(host=os.getenv('IP', '0.0.0.0'), port = int(os.getenv('PORT', 8080)), debug = True)
+    app.run(host='0.0.0.0',port=80, debug = True)
