@@ -13,6 +13,8 @@
 
 
 <h2>Installation Instructions:</h2>
+<p>Please note that this is optimized to run on Linux (specifically Ubuntu).  If you are using windows or Mac, consider running a virtual machine or using an SSH client to run the server directly on the product machine.
+
 
 <h3>Always run first:</h3>
 <p>sudo apt-get update</p>
