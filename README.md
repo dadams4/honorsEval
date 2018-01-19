@@ -47,4 +47,5 @@
 
 <br>
 
-<p><a href="http://35.199.60.177">Example of this app running online</a></p>
+<strike><p><a href="http://35.199.60.177">Example of this app running online</a></p></strike>
+<p>Example Application is currently down</p>
